@@ -16,7 +16,9 @@ const translations = {
       addBtn:     'Add Recipe',
     },
     home: {
-      featured: 'Featured Recipes',
+      favorites:   'My Favourites',
+      noFavorites: 'No favourites yet.',
+      favHint:     'Heart a recipe on its page — up to 3 show here.',
     },
     browse: {
       title:    'Browse Recipes',
@@ -33,6 +35,8 @@ const translations = {
       prepTime:      'Prep',
       cookTime:      'Cook',
       mins:          'min',
+      favorite:      '🤍 Add to Favourites',
+      unfavorite:    '❤️ Favourited',
     },
     add: {
       pageTitle:       'Add Recipe',
@@ -80,7 +84,9 @@ const translations = {
       addBtn:     'הוסף מתכון',
     },
     home: {
-      featured: 'מתכונים מומלצים',
+      favorites:   'המועדפים שלי',
+      noFavorites: 'אין מועדפים עדיין.',
+      favHint:     'לחץ על הלב במתכון — עד 3 יוצגו כאן.',
     },
     browse: {
       title:    'עיון במתכונים',
@@ -97,6 +103,8 @@ const translations = {
       prepTime:      'הכנה',
       cookTime:      'בישול',
       mins:          'דקות',
+      favorite:      '🤍 הוסף למועדפים',
+      unfavorite:    '❤️ מועדף',
     },
     add: {
       pageTitle:        'הוסף מתכון',

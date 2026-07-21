@@ -1,37 +1,25 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/language';
-
-const FEATURED = [
-  {
-    id:       'spaghetti-carbonara',
-    title:    { en: 'Spaghetti Carbonara', he: 'ספגטי קרבונרה' },
-    time:     25,
-    servings: 2,
-    emoji:    '🍝',
-    tags:     { en: ['Italian', 'Pasta'], he: ['איטלקי', 'פסטה'] },
-  },
-  {
-    id:       'chicken-tikka-masala',
-    title:    { en: 'Chicken Tikka Masala', he: 'עוף טיקה מסאלה' },
-    time:     45,
-    servings: 4,
-    emoji:    '🍛',
-    tags:     { en: ['Indian', 'Curry'], he: ['הודי', 'קארי'] },
-  },
-  {
-    id:       'avocado-toast',
-    title:    { en: 'Avocado Toast', he: 'טוסט אבוקדו' },
-    time:     10,
-    servings: 1,
-    emoji:    '🥑',
-    tags:     { en: ['Breakfast', 'Quick'], he: ['ארוחת בוקר', 'מהיר'] },
-  },
-];
+import { getFavoriteIds } from '@/lib/favorites';
+import { getRecipesByIds } from '@/lib/recipes';
+import RecipeCard from '@/components/RecipeCard';
 
 export default function HomePage() {
-  const { lang, t } = useLanguage();
+  const { t } = useLanguage();
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const ids = getFavoriteIds();
+    if (!ids.length) { setLoading(false); return; }
+    getRecipesByIds(ids)
+      .then(setFavorites)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="space-y-12">
@@ -59,37 +47,33 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured recipes */}
+      {/* Favourites */}
       <section>
-        <h2 className="text-2xl font-bold text-gray-700 mb-6">{t.home.featured}</h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURED.map((recipe) => (
+        <h2 className="text-2xl font-bold text-gray-700 mb-6">{t.home.favorites}</h2>
+
+        {loading ? (
+          <div className="flex justify-center py-10">
+            <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-500 rounded-full animate-spin" />
+          </div>
+        ) : favorites.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {favorites.map((recipe) => (
+              <RecipeCard key={recipe.id} recipe={recipe} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 bg-white rounded-2xl border border-orange-100 text-center gap-2">
+            <span className="text-5xl">🤍</span>
+            <p className="text-gray-500 font-medium">{t.home.noFavorites}</p>
+            <p className="text-sm text-gray-400">{t.home.favHint}</p>
             <Link
-              key={recipe.id}
-              href={`/recipes/${recipe.id}`}
-              className="group bg-white rounded-2xl shadow-sm border border-orange-100 p-6 hover:shadow-md hover:border-brand-300 transition-all"
+              href="/recipes"
+              className="mt-3 px-5 py-2 rounded-full bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 transition-colors"
             >
-              <div className="text-5xl mb-4">{recipe.emoji}</div>
-              <h3 className="text-lg font-semibold text-gray-800 group-hover:text-brand-600 transition-colors">
-                {recipe.title[lang]}
-              </h3>
-              <div className="flex items-center gap-4 mt-2 text-sm text-gray-400">
-                <span>⏱ {recipe.time} {t.recipe.time}</span>
-                <span>👤 {recipe.servings} {t.recipe.servings}</span>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {recipe.tags[lang].map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 text-xs font-medium"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              {t.nav.browse}
             </Link>
-          ))}
-        </div>
+          </div>
+        )}
       </section>
     </div>
   );

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useLanguage } from '@/context/language';
 import { getRecipe } from '@/lib/recipes';
+import { isFavorite, toggleFavorite } from '@/lib/favorites';
 import IngredientList from '@/components/IngredientList';
 
 export default function RecipeDetailPage() {
@@ -13,6 +14,7 @@ export default function RecipeDetailPage() {
   const router = useRouter();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fav, setFav] = useState(false);
 
   useEffect(() => {
     getRecipe(id)
@@ -22,7 +24,10 @@ export default function RecipeDetailPage() {
       })
       .catch(() => router.replace('/recipes'))
       .finally(() => setLoading(false));
+    setFav(isFavorite(id));
   }, [id]);
+
+  const handleFav = () => setFav(toggleFavorite(id));
 
   if (loading) {
     return (
@@ -43,11 +48,25 @@ export default function RecipeDetailPage() {
 
       {/* Header */}
       <div className="space-y-3">
-        {recipe.emoji && <div className="text-6xl">{recipe.emoji}</div>}
-        <h1 className="text-4xl font-extrabold text-gray-800 leading-tight">{recipe.title}</h1>
-        {recipe.description && (
-          <p className="text-gray-500 text-lg leading-relaxed">{recipe.description}</p>
-        )}
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2 flex-1">
+            {recipe.emoji && <div className="text-6xl">{recipe.emoji}</div>}
+            <h1 className="text-4xl font-extrabold text-gray-800 leading-tight">{recipe.title}</h1>
+            {recipe.description && (
+              <p className="text-gray-500 text-lg leading-relaxed">{recipe.description}</p>
+            )}
+          </div>
+          <button
+            onClick={handleFav}
+            className={`flex-shrink-0 mt-2 px-4 py-2 rounded-full border text-sm font-semibold transition-colors ${
+              fav
+                ? 'bg-red-50 border-red-200 text-red-500 hover:bg-red-100'
+                : 'bg-white border-orange-100 text-gray-500 hover:border-brand-400 hover:text-brand-600'
+            }`}
+          >
+            {fav ? t.detail.unfavorite : t.detail.favorite}
+          </button>
+        </div>
       </div>
 
       {/* Meta cards */}

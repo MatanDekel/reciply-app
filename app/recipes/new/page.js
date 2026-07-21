@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/language';
 import { addRecipe } from '@/lib/recipes';
 import { parseRecipeText } from '@/lib/parseRecipe';
+import EmojiPicker from '@/components/EmojiPicker';
 
 const emptyIngredient = () => ({ amount: '', unit: '', name: '' });
 
@@ -117,12 +118,7 @@ export default function AddRecipePage() {
         <div className="flex gap-3 items-end">
           <div>
             <label className="block text-xs font-semibold text-gray-500 mb-1">{t.add.form.emoji}</label>
-            <input
-              value={form.emoji}
-              onChange={(e) => set('emoji', e.target.value)}
-              maxLength={2}
-              className="w-14 text-2xl text-center px-1 py-2 rounded-xl border border-orange-100 bg-white focus:outline-none focus:ring-2 focus:ring-brand-400"
-            />
+            <EmojiPicker value={form.emoji} onChange={(e) => set('emoji', e)} />
           </div>
           <div className="flex-1">
             <label className="block text-xs font-semibold text-gray-500 mb-1">{t.add.form.title}</label>
