@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/language';
 import { addRecipe } from '@/lib/recipes';
+import { parseRecipeText } from '@/lib/parseRecipe';
 
 const emptyIngredient = () => ({ amount: '', unit: '', name: '' });
 
@@ -23,47 +24,22 @@ const emptyForm = () => ({
 export default function AddRecipePage() {
   const { t, lang } = useLanguage();
   const router = useRouter();
-  const [rawText, setRawText]       = useState('');
-  const [parsing, setParsing]       = useState(false);
-  const [parseError, setParseError] = useState('');
-  const [form, setForm]             = useState(emptyForm());
-  const [saving, setSaving]         = useState(false);
-  const [saved, setSaved]           = useState(false);
+  const [rawText, setRawText] = useState('');
+  const [form, setForm]       = useState(emptyForm());
+  const [saving, setSaving]   = useState(false);
+  const [saved, setSaved]     = useState(false);
 
   const set = (field, value) => setForm((f) => ({ ...f, [field]: value }));
 
-  /* ── AI parsing ─────────────────────────────────────────────── */
-  const parseWithAI = async () => {
+  /* ── Text parsing (client-side, no API) ─────────────────────── */
+  const parseText = () => {
     if (!rawText.trim()) return;
-    setParsing(true);
-    setParseError('');
-    try {
-      const res = await fetch('/api/parse-recipe', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ text: rawText }),
-      });
-      if (!res.ok) throw new Error('API error');
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-
-      setForm({
-        title:        data.title        || '',
-        description:  data.description  || '',
-        servings:     data.servings?.toString()  || '',
-        prepTime:     data.prepTime?.toString()  || '',
-        cookTime:     data.cookTime?.toString()  || '',
-        ingredients:  data.ingredients?.length ? data.ingredients : [emptyIngredient()],
-        instructions: data.instructions || '',
-        videoUrl:     data.videoUrl     || '',
-        tags:         Array.isArray(data.tags) ? data.tags.join(', ') : '',
-        emoji:        data.emoji        || '🍳',
-      });
-    } catch {
-      setParseError(t.add.parseError);
-    } finally {
-      setParsing(false);
-    }
+    const { ingredients, instructions } = parseRecipeText(rawText);
+    setForm((f) => ({
+      ...f,
+      ingredients: ingredients.length ? ingredients : [emptyIngredient()],
+      instructions,
+    }));
   };
 
   /* ── Ingredient helpers ──────────────────────────────────────── */
@@ -108,28 +84,33 @@ export default function AddRecipePage() {
     <div className="max-w-2xl mx-auto space-y-8">
       <h1 className="text-3xl font-bold text-gray-800">{t.add.pageTitle}</h1>
 
-      {/* ── AI paste box ── */}
+      {/* ── Quick-paste parser ── */}
       <div className="bg-white rounded-2xl border border-orange-100 shadow-sm p-6 space-y-4">
-        <label className="block text-sm font-semibold text-gray-600">{t.add.pasteLabel}</label>
+        <div>
+          <label className="block text-sm font-semibold text-gray-600 mb-1">
+            {t.add.pasteLabel}
+          </label>
+          <p className="text-xs text-gray-400 mb-3 whitespace-pre-line">{t.add.pasteHint}</p>
+        </div>
         <textarea
-          rows={6}
+          rows={8}
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
-          placeholder="..."
+          placeholder={t.add.pastePlaceholder}
           className={`${input} resize-y font-mono text-sm`}
+          dir="auto"
         />
-        {parseError && <p className="text-red-500 text-sm">{parseError}</p>}
         <button
           type="button"
-          onClick={parseWithAI}
-          disabled={parsing || !rawText.trim()}
+          onClick={parseText}
+          disabled={!rawText.trim()}
           className="px-5 py-2.5 rounded-full bg-brand-500 text-white font-semibold hover:bg-brand-600 disabled:opacity-40 transition-colors"
         >
-          {parsing ? t.add.parsing : t.add.parseBtn}
+          {t.add.parseBtn}
         </button>
       </div>
 
-      {/* ── Form ── */}
+      {/* ── Recipe form ── */}
       <form onSubmit={handleSave} className="space-y-6">
 
         {/* Emoji + Title */}
@@ -228,28 +209,20 @@ export default function AddRecipePage() {
             value={form.instructions}
             onChange={(e) => set('instructions', e.target.value)}
             className={`${input} resize-y`}
+            dir="auto"
           />
         </div>
 
         {/* Video URL */}
         <div>
           <label className="block text-xs font-semibold text-gray-500 mb-1">{t.add.form.videoUrl}</label>
-          <input
-            type="url"
-            value={form.videoUrl}
-            onChange={(e) => set('videoUrl', e.target.value)}
-            className={input}
-          />
+          <input type="url" value={form.videoUrl} onChange={(e) => set('videoUrl', e.target.value)} className={input} />
         </div>
 
         {/* Tags */}
         <div>
           <label className="block text-xs font-semibold text-gray-500 mb-1">{t.add.form.tags}</label>
-          <input
-            value={form.tags}
-            onChange={(e) => set('tags', e.target.value)}
-            className={input}
-          />
+          <input value={form.tags} onChange={(e) => set('tags', e.target.value)} className={input} />
         </div>
 
         {/* Save */}

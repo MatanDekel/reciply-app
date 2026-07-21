@@ -35,11 +35,11 @@ const translations = {
       mins:          'min',
     },
     add: {
-      pageTitle:  'Add Recipe',
-      pasteLabel: 'Paste recipe text — AI will extract it for you',
-      parseBtn:   '✨ Parse with AI',
-      parsing:    'Parsing...',
-      parseError: 'Could not parse. Check your ANTHROPIC_API_KEY and try again.',
+      pageTitle:       'Add Recipe',
+      pasteLabel:      'Quick-paste text to fill ingredients & steps',
+      pasteHint:       'Numbered lines → steps  |  Everything else → ingredients\nUse "Ingredients:" / "Instructions:" headers to separate sections.',
+      pastePlaceholder: '1 Boil the water\n2 Cook the pasta\n3 Drain and serve\n\nIngredients:\n500 g pasta\n3 l water\n1 tbsp olive oil',
+      parseBtn:        '📋 Parse text',
       form: {
         title:          'Recipe title *',
         description:    'Description',
@@ -99,11 +99,11 @@ const translations = {
       mins:          'דקות',
     },
     add: {
-      pageTitle:  'הוסף מתכון',
-      pasteLabel: 'הדבק טקסט מתכון — ה-AI יעבד אותו עבורך',
-      parseBtn:   '✨ עבד עם AI',
-      parsing:    'מעבד...',
-      parseError: 'לא הצלחנו לעבד. בדוק את ANTHROPIC_API_KEY ונסה שוב.',
+      pageTitle:        'הוסף מתכון',
+      pasteLabel:       'הדבק טקסט מתכון למילוי מהיר של שדות',
+      pasteHint:        'שורות ממוספרות → שלבי הכנה  |  שאר השורות → מצרכים\nאפשר גם להשתמש בכותרות: "מצרכים:" / "הוראות:"',
+      pastePlaceholder: '1 להרתיח את המים\n2 לבשל את הפסטה\n3 לסנן ולהגיש\n\nמצרכים:\n500 גרם פסטה\n3 ליטר מים\n1 כף שמן זית',
+      parseBtn:         '📋 עבד טקסט',
       form: {
         title:          'שם המתכון *',
         description:    'תיאור',
